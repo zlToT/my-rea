@@ -42,3 +42,11 @@ Android 侧样本 B：React Native + Hermes 字节码包（业务逻辑全在 `a
 | [`rea-apk-hermes.md`](rea-apk-hermes.md) | 由该样本沉淀出的通用方法论：类型判定、REA/工具链定位、`.hasm` 建索引、读字节码的常见坑 |
 
 > 样本本体、反编译产物与逐条结论不入库（`targets/*`、`out/*` 已在 .gitignore 中）。
+
+## exe-static-analysis
+
+Windows 原生 exe 的静态反编译路线（REA + Ghidra）。样本是单个 exe，验证「无引擎 → 装引擎 → 全量反编译 → 建调用图 → 读架构」这条链路能走通，不做逐函数精读。
+
+| 文件 | 内容 |
+|---|---|
+| [`rea-exe-ghidra.md`](rea-exe-ghidra.md) | 方法论：JDK 版本坑、冒烟三步、调用图/符号聚类导航、读伪代码的套路、结论可信度分级 |
