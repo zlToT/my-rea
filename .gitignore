@@ -1,0 +1,20 @@
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 待分析的目标样本（体积大、可能有版权，不入库）
+targets/*
+!targets/.gitkeep
+
+# 反编译 / 证据导出产物
+out/*
+!out/.gitkeep
+
+# 工具链（Ghidra、JDK 等，需要时再装）
+tools/*
+
+# 杂项
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

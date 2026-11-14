@@ -1,0 +1,25 @@
+{
+  "name": "ai-rea",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.18.0",
+      "onFail": "download"
+    }
+  },
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@12.18.0",
+  "dependencies": {
+    "rea-agents": "6.9.0"
+  }
+}
