@@ -66,3 +66,80 @@
 
 - 静态阅读不修改样本；要改包就得重打包 + 重签名，属于另一个量级的工作。
 - 产物（样本、反编译输出）不入库，只入库方法与结论。
+
+## 附：一个 RN + Hermes 游戏的存档与数值案例
+
+把第 3~5 节的流程在同一个样本上跑完后得到的实际结论，作为"能挖到什么颗粒度"的参照。函数编号对应 `funcs.json` 的 id，行号对应 `index.hast`；均只对这份样本有效。
+
+### 1. 整体架构
+
+- React Native + Hermes（version 90），业务全部在 `assets/index.android.bundle`。
+- 3 个内置网页小游戏，共用一个大 redux store，action 前缀 `setSmallGame00XData`：
+  | 编号 | 存档 action（`funcs.json` #4174 `reducer`） |
+  |---|---|
+  | 001 | `setSmallGame001Data`（主游戏） |
+  | 002 | `setSmallGame002Data` |
+  | 003 | `setSmallGame003UserData`（挂机/放置类） |
+- 状态键：`smallGame001UserData` / `smallGame002UserData` / `smallGame003UserData`，另有 `smallGame00XMenu`、`smallGame001Equip` / `Dan` / `Passive` / `Hero`。
+
+### 2. 存档协议（服务端，无本地持久化主路径）
+
+`funcs.json` #12192 `createUserData`（hasm line 505677）：
+```
+POST http://<host>/addSaveData
+body = { json: JSON.stringify(userData), redeem: <redeem> }
+```
+`funcs.json` #12199（hasm line 505851，async generator）：
+```
+POST http://<host>/getSaveData
+body = { redeem: <redeem> }
+→ resp.json → JSON.parse(resp.json)
+→ if (json.gameId !== routerData.gameId)  弹 Alert「此导入码不是「<gameName>」的！\n是否强制导入？可能导致存档损坏！」
+→ dispatch({ type: 'setSmallGame'+gameId+'Data', data: json, label: '更换存档' })
+→ Toast.success('导入存档成功')
+```
+- 客户端键名规则：`'smallGame' + routerData.gameId + 'UserData'`。
+- `redeem` 就是导入码/存档身份，服务端以它做 key；**同一 redeem 可跨设备取回存档**。
+- 三份拷贝对应 3 个小游戏：#12192/12199（game001）、#13769/#13776（game002）、#14809/#14816（game003）。
+- AsyncStorage 只在库里（#5203 `PlatformLocalStorage`），主存档路径不走本地。
+
+### 3. 战斗数值（funcs.json #12030 `fightOneRound`，hast L462414）
+
+```
+先手 = (hero.atk速度等效 >= enemy速度等效) ? 'hero' : 'enemy'
+  速度等效 = attribute.speed * (1 + speedPercent/100)
+
+for a of attacker.animalData:            // 最多 2 个（animalChooseIndex / animalTogetherIndex）
+    if (a.effectPercent > rand(1,100)):  // 千分/百分比节奏判定
+        atk  = attribute.atk * (1 + atkPercent/100)
+        mult = 1 + (attribute.damagePercent - defender.reduceDamagePercent)/100
+        base = atk * mult
+        val  = max(1, base * a.effectValue / 100)
+        if a.effectType === 'damage': defender.hp -= val   // 「造成了<中文数字>伤害」
+        else:                        attacker.hp += val    // 「恢复了<中文数字>生命」
+    else: 标签 '未触发'
+// 双方各打一轮；enemy.hp<=0 时本方不还手（且标签全填 '未触发'）
+// 结尾：hero.hp<=0 且 !hero.status.isYunxuan → '被击败了'
+```
+- 百分比字段统一 `/100` 归一，默认值 0，即 `damagePercent=0` 时倍率为 1。
+- `attribute.hpMax` 在 #12027 `getFightResult` 里被设为开战前的 `hp`。
+- 敌人数值来自 `towerFloorNum2EnemyAttribute(floorNum)`（hast L162544），即**层数→敌人属性**的纯函数，改层数或改函数即可控敌强度。
+- `attribute2Power`（#4195）、`randomOneEquip`（#4218）、`addItem`（#4204/#11947）、`useOldEquip`（#12024）是配套的装备/道具/战力换算。
+
+### 4. 挂机钻石（自动化收益的核心，funcs.json #14108 `onPressGetDiamond`，hast L576623）
+
+```
+每次领取 = 6480 钻石
+冷却     = 300 秒（giftData.getDiamondTimeStamp + 300*1000 与 now 比较）
+if (giftData.lifeCardTest) → 直接 diamond += 6480，不更新冷却时间戳   // 「开发者模式已开启，钻石+6480」
+else                        → diamond += 6480，更新 getDiamondTimeStamp
+```
+- 之后 dispatch `{type:'setSmallGame003UserData', label:'挂机钻石领取'}`；**新存档上传走 createUserData → addSaveData**。
+- 同一函数还有分层奖励：`floorNum < 阈值` 时奖励文案变成 `钻石+6480*floorNum`。
+- 其他钻石入口：#13100 / #14108 `onPressGetDiamond`、#14495「立刻获得64800钻石」「每5分钟可领取6480钻石」。
+
+### 5. 待办
+
+- 存档 userData 完整字段表（diamond / floorNum / animalList / oldEquipChooseList / giftData 已确认存在）。
+- 小游戏 001 的关卡/推图逻辑、装备品质与战力公式。
+- 是否需要"改包"（需要 hbctool 重打包 → 会改签名）。

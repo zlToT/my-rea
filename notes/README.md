@@ -35,18 +35,18 @@ Cocos Creator 2.x 打包的 5×5 三消小游戏，复刻在 `out/web-mobile/gam
 ## apk-rn-hermes
 
 Android 侧样本 B：React Native + Hermes 字节码包（业务逻辑全在 `assets/index.android.bundle`，dex 只剩壳与运行时）。
-用途是**验证 RN 包的静态逆向路径**，跑完首轮侦察（类型判定 → header 解析 → 反汇编/反编译 → 建函数索引）即停止，不做深挖。
+用途是**验证 RN 包的静态逆向路径**，走完一轮（类型判定 → header 解析 → 反汇编/反编译 → 建函数索引 → 定位业务逻辑），并在文末附一份去标识化的案例分析（存档协议、战斗数值、自动化收益），不写具体应用名。
 
 | 文件 | 内容 |
 |---|---|
-| [`rea-apk-hermes.md`](rea-apk-hermes.md) | 由该样本沉淀出的通用方法论：类型判定、REA/工具链定位、`.hasm` 建索引、读字节码的常见坑 |
+| [`rea-apk-hermes.md`](rea-apk-hermes.md) | 方法论：类型判定、REA/工具链定位、`.hasm` 建索引、读字节码的常见坑；附录：同一份 bundle 的存档协议与战斗数值公式（去标识化） |
 
-> 样本本体、反编译产物与逐条结论不入库（`targets/*`、`out/*` 已在 .gitignore 中）。
+> 样本本体与反编译产物不入库（`targets/*`、`out/*` 已在 .gitignore 中）。笔记里保留分析与方法，具体应用名一律以 `<Name>` / `<vendor>` / `<host>` / `<pkg>` 代替。
 
 ## exe-static-analysis
 
-Windows 原生 exe 的静态反编译路线（REA + Ghidra）。样本是单个 exe，验证「无引擎 → 装引擎 → 全量反编译 → 建调用图 → 读架构」这条链路能走通，不做逐函数精读。
+Windows 原生 exe 的静态反编译路线（REA + Ghidra）。样本是单个 exe，验证「无引擎 → 装引擎 → 全量反编译 → 建调用图 → 读架构」这条链路能走通，附一份去标识化的案例拆解（数据结构、查询执行、索引构建），不写产品名。
 
 | 文件 | 内容 |
 |---|---|
-| [`rea-exe-ghidra.md`](rea-exe-ghidra.md) | 方法论：JDK 版本坑、冒烟三步、调用图/符号聚类导航、读伪代码的套路、结论可信度分级 |
+| [`rea-exe-ghidra.md`](rea-exe-ghidra.md) | 方法论：JDK 版本坑、冒烟三步、调用图/符号聚类导航、读伪代码的套路、结论可信度分级；附录：数据模型 / 查询执行 / 索引构建的拆解（去标识化） |
