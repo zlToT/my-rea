@@ -13,12 +13,25 @@
 |---|---|---|
 | 打包后的网页 / Electron 应用 | 模块结构、依赖图、接口、资源清单、业务逻辑还原 | ✅ 立即可用 |
 | .NET 程序集 | 类型、方法签名、字符串、P/Invoke 边界 | ✅ 立即可用 |
-| APK | 包结构、manifest、签名、资源；IL2CPP 符号清单 | ✅ 结构与符号（反编译需装 JADX） |
-| 原生 exe / dll | 函数伪代码、调用关系、导入导出表 | ⚠️ 需要装 Ghidra（Windows 上仅 x64 PE，实验性） |
+| APK | 包结构、manifest、签名、资源；IL2CPP 符号清单 | ✅ 结构与符号；RN/Hermes 包可一路读到业务公式 |
+| React Native + Hermes 包 | 反汇编 `.hasm`、伪 JS `.hast`、函数索引、业务逻辑与数值公式 | ✅ 立即可用（不需要 JADX） |
+| 微信小游戏（wxapkg） | 取包、解包、引擎识别、场景与 API 清单 | ✅ 立即可用（雷电模拟器缓存 + `tools/unpack_wxapkg.py`） |
+| 原生 exe / dll | 函数伪代码、调用关系、数据布局、导入导出表 | ✅ 已装 Ghidra 12.2 + JDK 25（Windows 上仅 x64 PE） |
 | 固件 / 抓包 / 进程内存 | — | ❌ Windows 不支持 |
 
-**最适合的场景**：你手上只有发布产物（`dist`、`asar`、`apk`），没有源码，
+**最适合的场景**：你手上只有发布产物（`dist`、`asar`、`apk`、`exe`），没有源码，
 想知道里面怎么算的。若已有源码，直接读源码更快，不必绕这一圈。
+
+### 已经跑通的四条路线
+
+每条都沉淀成了可复用的方法论文档，骨架与坑都写在里面：
+
+| 路线 | 说明 | 笔记 |
+|---|---|---|
+| 网页游戏（Cocos 2.x） | 解包 → 模块映射 → 逐项复刻 | [`notes/web-mobile/analysis.md`](notes/web-mobile/analysis.md) |
+| 微信小游戏（LayaAir） | Windows 侧 WMPF 缓存取包 → wxapkg 解包 | [`notes/wechat-minigame/analysis.md`](notes/wechat-minigame/analysis.md) |
+| Android / React Native + Hermes | 判定类型 → header → `.hasm`/`.hast` → 建索引 → 定位公式 | [`notes/rea-apk-hermes.md`](notes/rea-apk-hermes.md) |
+| Windows 原生 exe | Ghidra 全量反编译 → 调用图 → 读数据布局与算法 | [`notes/rea-exe-ghidra.md`](notes/rea-exe-ghidra.md) |
 
 ### 关于「复刻游戏」
 
@@ -38,7 +51,8 @@ pnpm install         # 装依赖，只需一次
 pnpm exec rea doctor --json
 ```
 
-`doctor` 报 `missing_analysis_engine` 是正常的 —— 只是没装反编译引擎，不影响网页/.NET 分析。
+`doctor` 报 `missing_analysis_engine` 只在**没激活引擎**时出现 —— Ghidra 已装在 `tools\`（项目内，不写注册表），
+每会话按 [`AGENTS.md`](AGENTS.md#启用-ghidra每会话一次) 设 3 个环境变量即可转绿。网页/.NET 分析不需要引擎，直接就能跑。
 
 ---
 
@@ -118,7 +132,7 @@ pnpm exec rea doctor --json
 |---|---|
 | 可运行目标 | 启动程序 / 网页，观察运行时行为 |
 | 可联网 | 抓包、访问线上站点 |
-| 可装工具 | 安装 JADX / Ghidra 等引擎（会先报体积、装到哪、有什么副作用） |
+| 可装工具 | 安装 / 重装分析引擎或任何二进制（Ghidra、JDK、JADX 等；会先报体积、装到哪、有什么副作用） |
 
 **装任何东西（包括 `pnpm add`、升级 REA、下载工具）都会先问你，不会默认执行。**
 

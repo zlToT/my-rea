@@ -79,8 +79,8 @@ pnpm exec rea doctor --json
 | 网页 bundle | `pnpm exec rea analyze-web-bundle "<URL>" --json` | 否 |
 | .NET 程序集 | `pnpm exec rea analyze "<文件>" --json` | 否 |
 | APK 结构 / 签名 | `pnpm exec rea analyze "<apk>" --json` | 否（结构）／JADX（反编译） |
-| 原生二进制伪代码 | `pnpm exec rea decompile "<文件>" --procedure main --json` | Ghidra / IDA |
-| 全函数导出 | `pnpm exec rea decompile-all "<文件>" --output out\<项目>\ --json` | Ghidra / IDA |
+| 原生二进制伪代码 | `pnpm exec rea decompile "<文件>" --procedure main --json` | Ghidra（已装，需按上节激活） |
+| 全函数导出 | `pnpm exec rea decompile-all "<文件>" --output out\<项目>\ --json` | Ghidra（已装，需按上节激活） |
 
 产出统一写到 `out\<项目名>\`。完整子命令列表用 `pnpm exec rea --help` 查（6.9.0 有 180+ 条）。
 
@@ -106,11 +106,44 @@ cmd /c "pnpm exec rea analyze-javascript-application ""x"" --json > out\a.json"
 | 引擎 | 状态 | 用途 |
 |---|---|---|
 | 内置解析器 | 可用 | JS/Electron、.NET、Godot PCK、IL2CPP metadata、APK 结构、HAR/SAZ、PE/ELF 头 |
-| Ghidra 12.1.4 + JDK 21 | 未安装 | 原生二进制伪代码（Windows 为实验性、只读、仅 x64 PE） |
-| JADX | 未安装 | APK 反编译（需 JDK + `jadx-headless-mcp` 0.7.1 JAR） |
+| **Ghidra 12.2 + JDK 25** | **已装（项目内）** | 原生二进制伪代码；Windows 只读、仅 x64 PE |
+| 项目内 Python venv | 已装 | Hermes 字节码（`hbc-*`）、PE 解析（`pefile`）、反汇编（`capstone`） |
+| JADX | 未装（多数情况不需要） | APK → Java 源码，需 JDK17+ 与 `jadx-headless-mcp` 0.7.1 JAR |
 | IDA / Hopper / Kuna | 不适用 | 付费或不支持 Windows |
 
-**需要引擎的能力一律先停下申请授权，不要自行下载安装。**
+**需要新增引擎（或重装）时一律先停下申请授权，不要自行下载安装。** 已装好的直接按下面激活，不要再装。
+
+### 启用 Ghidra（每会话一次）
+
+引擎在 `tools\` 下，**不在 PATH、不写注册表、不影响其他项目**。用之前设三个环境变量：
+
+```powershell
+$env:JAVA_HOME          = "D:\ai-code\ai-rea\tools\jdk25"
+$env:GHIDRA_INSTALL_DIR = "D:\ai-code\ai-rea\tools\ghidra"
+$env:PATH = "$env:JAVA_HOME\bin;$env:GHIDRA_INSTALL_DIR\support;$env:PATH"
+pnpm exec rea doctor --json     # ghidra / ghidra-version / ghidra-java 应全 ok
+```
+
+- `tools\ghidra-env.ps1` 是同样内容；但 dot-source 可能被命令安全检查拦，直接写 env 更稳。
+- **Ghidra 12.2 要求 JDK 25+**。用 JDK 21 会在 analyzeHeadless 报
+  `JDK 25+ (64-bit) could not be found and must be manually chosen!` 然后交互卡死。`tools\jdk25` 就是为此装的。
+- 体积：`tools\ghidra` 866 MB、`tools\jdk25` 290 MB，均被 `.gitignore` 的 `tools/*` 挡住，不入库。
+- Ghidra 的安装 zip 已删；要重装需重新下 543 MB（`ghidra_12.2_PUBLIC_20261016.zip`，SHA256 `2c2cd776db3c1f6a097ba418922378ac3649cadd5e844a6f5f088ae628a7be67`）。
+
+### 首次分析某个二进制：冒烟三步
+
+```powershell
+# 1) 只导入不分析（秒级），确认引擎能开这份文件
+& "$env:GHIDRA_INSTALL_DIR\support\analyzeHeadless.bat" "$env:TEMP\ghproj" tmp -import "targets\exe\X.exe" -noanalysis
+
+# 2) 单函数校准（首个函数 3~5 分钟属正常）
+cmd /c "pnpm exec rea decompile ""targets\exe\X.exe"" <入口地址> --json > out\p.json"
+
+# 3) 全量导出（实测 3049 选中 / 2618 写出 / 431 external / 0 failed，约 6 分钟）
+cmd /c "pnpm exec rea decompile-all ""targets\exe\X.exe"" --output out\<项目>\decompiled --json > out\<项目>\decompile-all.json"
+```
+
+导出的 `.c` 文件头有一段 `// provider / limitations` 注释，检索前先剥掉，否则全是噪音。
 
 ## 分发形态
 
@@ -148,7 +181,7 @@ cmd /c "pnpm exec rea analyze-javascript-application ""x"" --json > out\a.json"
 | `out/` | 反编译产物、evidence 导出 | 否 |
 | `notes/` | 结论、环境快照、对比记录 | 是 |
 | `skills/` | 项目自建 skill（按目标类型） | 是 |
-| `tools/` | Ghidra、JDK 等可选工具链；`tools/unpack_wxapkg.py` 例外，入库 | 否（脚本除外） |
+| `tools/` | Ghidra 12.2、JDK 25、Python venv 等本地工具链；`tools/unpack_wxapkg.py`、`tools/ghidra-env.ps1` 例外，入库 | 否（脚本除外） |
 
 分析产物一律写到 `out/<项目名>/`，不要污染 `targets/` 或仓库根目录。
 
@@ -159,9 +192,37 @@ cmd /c "pnpm exec rea analyze-javascript-application ""x"" --json > out\a.json"
 - 不要为了“让命令跑通”而临时全局安装包；先确认项目内是否已有依赖。
 - 不要提交 `node_modules/`、样本文件、反编译产物。
 
-## 已知环境事实
+## 已知环境事实（2026-11 实测）
 
-- 平台：Windows x64
-- `rea doctor` 中的 `missing_analysis_engine` 属于预期缺口（未装 Ghidra/IDA/JADX）。
-- `config_drift`（`registration:*` / `skill:*`）表示未注册为 MCP 客户端，CLI 用法下可忽略。
+- 平台：Windows x64；D 盘约 230 GB 空闲。
+- Node v24.22.3（nvm-windows）、pnpm、REA 6.9.0（`pnpm exec rea`）。
+- `missing_analysis_engine` 只在未激活 Ghidra 时出现；`config_drift`（`registration:*` / `skill:*`）表示未注册为 MCP 客户端，CLI 用法下可忽略。
 - Windows 上不支持依赖 Linux 工具链的能力：固件分析、pcap、进程捕获、桌面应用捕获。
+- **MCP 不要再试**：本机 REA 的 14 个工具入参 schema 带 `^[\uD800-\uDFFF]*$`，DeepSeek 服务端不认这个正则转义，
+  一旦挂上 MCP 就整轮 `INVALID_REQUEST`（`Invalid schema for function 'mcp__rea__binary_session'`），
+  且 `REA_MCP_INPUT_SCHEMA_PROFILE=compact` 不解决。历史配置已回滚，别重装 `Fanqi89/dsh-rea` 之类的桥接插件。
+
+### 项目内工具链与绝对路径（都不在 PATH）
+
+| 用途 | 路径 | 备注 |
+|---|---|---|
+| Python（Hermes/PE 分析） | `tools\.venv\Scripts\python.exe` | 3.12.4；hermes-dec 0.1.8、pefile、capstone |
+| Hermes 反汇编/反编译 | `tools\.venv\Scripts\hbc-file-parser.exe` / `hbc-disassembler.exe` / `hbc-decompiler.exe` | 只读 Hermes 字节码 |
+| Ghidra | `tools\ghidra` | 需先设 `GHIDRA_INSTALL_DIR` |
+| JDK 25 | `tools\jdk25` | Ghidra 12.2 硬性要求；`java -version` 应 25.0.5 |
+| 7-Zip 22.01 | `D:\Program Files\7-Zip\7z.exe` | 解 APK/zip 比 `Expand-Archive` 快很多 |
+| adb 34.0.4 / aapt | `D:\Program Files\leidian\LDPlayer9\` | 雷电模拟器自带 |
+| Android 设备 | `emulator-5554` | 雷电 9，Android 9，x86_64，1600x900，可直接装 APK 跑 |
+
+### Windows / PowerShell 踩坑备忘
+
+- **`pwsh` 单次调用 300 秒超时**：超时会杀进程并重置持久 shell（env、cwd 全丢）。长任务一律
+  `Start-Process` 后台跑 + 轮询文件大小，不要把 10 分钟的命令放在前台。
+- **本机 `curl` 是 7.55.1**（WinSSL），**没有 `--parallel`**（需 ≥7.66）。
+- `curl -K <配置文件>`：文件里路径必须用**正斜杠**，写 `D:\...` 会被当转义，文件会落到别处。
+- `[IO.File]::WriteAllText` 默认写 UTF-8 **带 BOM**，BOM 会让 `curl -K` 解析失败 → 传 `New-Object System.Text.ASCIIEncoding`。
+- PowerShell 5.1 的 `Wait-Process` **没有 `-Timeout`**，加了会立即返回；用 `while` 轮询 `HasExited`。
+- `Start-Process -ArgumentList` 不自动加引号：URL 带 `&` / `%` 会被截断 → 长 URL 走配置文件或手工转义。
+- `npm view` 在本目录会因 `package.json` 的 `devEngines` 报 `EBADDEVENGINES`，要用请换临时目录或直接 `pnpm`。
+- 需要写多行文本/脚本时，用 `[IO.File]::WriteAllText(..., New-Object System.Text.UTF8Encoding($false))`，
+  比 `Out-File` 稳（不会带 BOM、不会按 GBK 转码）。
