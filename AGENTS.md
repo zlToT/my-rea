@@ -62,14 +62,34 @@ robocopy "node_modules\.pnpm\rea-agents@<版本>\node_modules\rea-agents\skills\
          ".agents\skills\reverse-engineer-anything" /MIR
 ```
 
-## 常用命令
+## 常用命令与任务配方
 
 ```powershell
 pnpm exec rea --version
 pnpm exec rea doctor --json
-pnpm exec rea analyze-javascript-application "<目标目录>" --json
-pnpm exec rea decompile "<目标文件>" --procedure <函数名> --json
 ```
+
+| 目标类型 | 命令 | 需要引擎 |
+|---|---|---|
+| JS / Electron 产物 | `pnpm exec rea analyze-javascript-application "<目录>" --json` | 否 |
+| 网页 bundle | `pnpm exec rea analyze-web-bundle "<URL>" --json` | 否 |
+| .NET 程序集 | `pnpm exec rea analyze "<文件>" --json` | 否 |
+| APK 结构 / 签名 | `pnpm exec rea analyze "<apk>" --json` | 否（结构）／JADX（反编译） |
+| 原生二进制伪代码 | `pnpm exec rea decompile "<文件>" --procedure main --json` | Ghidra / IDA |
+| 全函数导出 | `pnpm exec rea decompile-all "<文件>" --output out\<项目>\ --json` | Ghidra / IDA |
+
+产出统一写到 `out\<项目名>\`。完整子命令列表用 `pnpm exec rea --help` 查（6.9.0 有 180+ 条）。
+
+## 分析引擎状态
+
+| 引擎 | 状态 | 用途 |
+|---|---|---|
+| 内置解析器 | 可用 | JS/Electron、.NET、Godot PCK、IL2CPP metadata、APK 结构、HAR/SAZ、PE/ELF 头 |
+| Ghidra 12.1.4 + JDK 21 | 未安装 | 原生二进制伪代码（Windows 为实验性、只读、仅 x64 PE） |
+| JADX | 未安装 | APK 反编译（需 JDK + `jadx-headless-mcp` 0.7.1 JAR） |
+| IDA / Hopper / Kuna | 不适用 | 付费或不支持 Windows |
+
+**需要引擎的能力一律先停下申请授权，不要自行下载安装。**
 
 ## 分发形态
 
