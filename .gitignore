@@ -12,6 +12,7 @@ out/*
 
 # 工具链（Ghidra、JDK 等，需要时再装）
 tools/*
+!tools/unpack_wxapkg.py
 
 # 杂项
 *.log

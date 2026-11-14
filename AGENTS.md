@@ -37,17 +37,21 @@ npm i -g @anthropic-ai/claude-code pnpm
 
 ## 项目内 skills
 
-本仓库自带 skill，位于 `.agents/skills/`，**已随仓库提交，可直接读取，无需安装**。
+本仓库有两类 skill，均已随仓库提交，可直接读取，无需安装：
+
+- `.agents/skills/`：REA 自带的通用逆向 skill，升级 REA 时同步；
+- `skills/`：本仓库针对具体目标类型整理的操作手册。
 
 | skill | 路径 | 何时加载 |
 |---|---|---|
 | `reverse-engineer-anything` | `.agents/skills/reverse-engineer-anything/SKILL.md` | 任务涉及逆向、反编译、分析发布产物时 |
+| `wechat-minigame-reversing` | `skills/wechat-minigame-reversing/SKILL.md` | 目标是微信小游戏、`wxapkg`、雷电 WMPF 缓存时 |
 
 使用规则：
 
-1. **开始逆向任务前先读对应 `SKILL.md`**，再决定调用哪些 `rea` 子命令。
+1. **开始任务前先读对应 `SKILL.md`**，再决定调用哪些 `rea` 子命令。
 2. `SKILL.md` 末尾的 `references/` 是按需读的，不要一次性全读（合计 235 KB）。
-3. 该 skill 原本面向 MCP 工具名编写。**本项目使用 CLI**，遇到 MCP 工具名时按下面映射替换：
+3. `.agents/skills/` 里的 skill 原本面向 MCP 工具名编写。**本项目使用 CLI**，遇到 MCP 工具名时按下面映射替换：
 
 | skill 里的 MCP 说法 | 本项目用 |
 |---|---|
@@ -115,7 +119,7 @@ cmd /c "pnpm exec rea analyze-javascript-application ""x"" --json > out\a.json"
 | 形态 | 本项目是否使用 | 说明 |
 |---|---|---|
 | CLI（`pnpm exec rea`） | ✅ 唯一调用方式 | |
-| 项目内 skill（`.agents/skills/`） | ✅ | 已随仓库提交 |
+| 项目内 skill（`.agents/skills/` + `skills/`） | ✅ | 已随仓库提交 |
 | MCP 注册（`rea setup`） | ❌ | 会改 `~/.claude.json`、`~/.codex/` 等客户端配置 |
 | 插件（Claude / Codex / Cursor Marketplace） | ❌ | 绕开 `rea doctor` 管理，且与项目内 skill 重复 |
 
@@ -143,7 +147,8 @@ cmd /c "pnpm exec rea analyze-javascript-application ""x"" --json > out\a.json"
 | `targets/` | 待分析样本，一个目标一个子目录 | 否 |
 | `out/` | 反编译产物、evidence 导出 | 否 |
 | `notes/` | 结论、环境快照、对比记录 | 是 |
-| `tools/` | Ghidra、JDK 等可选工具链 | 否 |
+| `skills/` | 项目自建 skill（按目标类型） | 是 |
+| `tools/` | Ghidra、JDK 等可选工具链；`tools/unpack_wxapkg.py` 例外，入库 | 否（脚本除外） |
 
 分析产物一律写到 `out/<项目名>/`，不要污染 `targets/` 或仓库根目录。
 
