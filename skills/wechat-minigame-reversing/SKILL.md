@@ -63,13 +63,13 @@ Get-CimInstance Win32_Process -Filter "Name='WeChatAppEx.exe'" |
 实例：
 
 ```text
-D:\Program Files\leidian\LDPlayer9\weixinsmallgameData\Applet\packages\wxbef54be7c625286e\48\
+D:\Program Files\leidian\LDPlayer9\weixinsmallgameData\Applet\packages\<appid>\48\
 ```
 
 `<appid>` 可以从桌面快捷方式的 intent extras 里看：
 
 ```powershell
-adb shell dumpsys package com.ld.wechat.minigame.wxbef54be7c625286e
+adb shell dumpsys package com.ld.wechat.minigame.<appid>
 ```
 
 或者直接看 `weixinsmallgameData\Applet\packages` 下最近修改的目录。

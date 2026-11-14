@@ -2,9 +2,9 @@
 
 ## 1. 结论速览
 
-- 目标：微信小游戏「赵云与阿斗」，appid `wxbef54be7c625286e`，本地缓存版本号 `48`。
+- 目标：微信小游戏「赵云与阿斗」，appid `<appid>`，本地缓存版本号 `48`。
 - 引擎：**LayaAir 3.3.12**，构建产物为微信小游戏 `game.js` + `.ls` 场景 + `.lh` prefab + `resources` 资源分包。
-- 样本：5 个 `wxapkg`，合计 12,848,785 字节；已复制到 `targets/wechat-minigame/wxbef54be7c625286e/48/`。
+- 样本：5 个 `wxapkg`，合计 12,848,785 字节；已复制到 `targets/wechat-minigame/<appid>/48/`。
 - 解包：5 个包全部解包成功，共 344 个文件；主包 96 个文件、3,092,753 字节；JSON、场景、prefab、PNG 均已抽样或全量校验。
 - 关键发现：小游戏包**不在 Android 模拟器里**。雷电 9 用 Windows 侧 WMPF 运行小游戏，包在 `weixinsmallgameData\Applet\packages\...`；模拟器里的 `/data/app/com.android.flysilkworm-...` 是雷电应用商店 APK 的安装目录，与本游戏无关。
 - 当前状态：**已完成找包、复制、解包、引擎判定、资源完整性验证**；本地 Web 运行壳（`wx` shim）尚未实现。
@@ -14,13 +14,13 @@
 ### 2.1 实际路径
 
 ```text
-D:\Program Files\leidian\LDPlayer9\weixinsmallgameData\Applet\packages\wxbef54be7c625286e\48\
+D:\Program Files\leidian\LDPlayer9\weixinsmallgameData\Applet\packages\<appid>\48\
 ```
 
 复制到仓库：
 
 ```text
-targets\wechat-minigame\wxbef54be7c625286e\48\
+targets\wechat-minigame\<appid>\48\
 ```
 
 ### 2.2 文件与校验
@@ -35,7 +35,7 @@ targets\wechat-minigame\wxbef54be7c625286e\48\
 
 ### 2.3 为什么不在模拟器里
 
-- 雷电桌面上的「赵云与阿斗」只是快捷方式，intent 指向 `com.ld.wechat.minigame.wxbef54be7c625286e/.MainActivity`，extras 含 `id=wxbef54be7c625286e`、`game_name=赵云与阿斗`；直接 `am start` 报 `Activity class ... does not exist`。
+- 雷电桌面上的「赵云与阿斗」只是快捷方式，intent 指向 `com.ld.wechat.minigame.<appid>/.MainActivity`，extras 含 `id=<appid>`、`game_name=赵云与阿斗`；直接 `am start` 报 `Activity class ... does not exist`。
 - 模拟器内 `pm list packages` 只有 68 个系统包，没有微信、也没有该小游戏包；全盘 `find` 无 `*.wxapkg`。
 - Windows 上实际运行的是：
 
@@ -107,7 +107,7 @@ tools/unpack_wxapkg.py
 
 ```powershell
 python tools\unpack_wxapkg.py `
-  "targets\wechat-minigame\wxbef54be7c625286e\48\__WITHOUT_MULTI_PLUGINCODE__.wxapkg" `
+  "targets\wechat-minigame\<appid>\48\__WITHOUT_MULTI_PLUGINCODE__.wxapkg" `
   "out\wechat-minigame\unpacked\__WITHOUT_MULTI_PLUGINCODE__"
 ```
 
@@ -295,7 +295,7 @@ out/wechat-minigame/web/
 
 | 内容 | 路径 |
 |---|---|
-| 原始包 | `targets/wechat-minigame/wxbef54be7c625286e/48/` |
+| 原始包 | `targets/wechat-minigame/<appid>/48/` |
 | 解包结果 | `out/wechat-minigame/unpacked/` |
 | 解包脚本 | `tools/unpack_wxapkg.py` |
 | 技能 | `skills/wechat-minigame-reversing/SKILL.md` |
@@ -311,3 +311,4 @@ out/wechat-minigame/web/
 - [ ] 判断单机可玩边界（战斗是否完全客户端结算）；
 - [ ] 如继续，补 mock 登录/排行榜/商店接口；
 - [ ] 输出最小可玩 Demo 或分析结论。
+
