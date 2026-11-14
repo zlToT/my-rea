@@ -22,7 +22,7 @@ Cocos Creator 2.x 打包的 5×5 三消小游戏，复刻在 `out/web-mobile/gam
 
 | 文件 | 内容 |
 |---|---|
-| `env-snapshot.json` | 本机 Node/pnpm/工具链版本快照，跨项目复用 |
+| `env-snapshot.json` | 环境快照：Node/pnpm/REA 版本、引擎（Ghidra 12.2 + JDK 25、venv 包）、外部工具绝对路径、模拟器、`rea doctor` 预期缺口与已知限制 |
 
 ## wechat-minigame
 
