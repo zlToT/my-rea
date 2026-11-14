@@ -71,6 +71,34 @@ pnpm exec rea analyze-javascript-application "<目标目录>" --json
 pnpm exec rea decompile "<目标文件>" --procedure <函数名> --json
 ```
 
+## 分发形态
+
+本项目使用 **CLI + 项目内 skill** 的组合，**不要安装 REA 插件**，也**不要运行 `rea setup`**。
+
+| 形态 | 本项目是否使用 | 说明 |
+|---|---|---|
+| CLI（`pnpm exec rea`） | ✅ 唯一调用方式 | |
+| 项目内 skill（`.agents/skills/`） | ✅ | 已随仓库提交 |
+| MCP 注册（`rea setup`） | ❌ | 会改 `~/.claude.json`、`~/.codex/` 等客户端配置 |
+| 插件（Claude / Codex / Cursor Marketplace） | ❌ | 绕开 `rea doctor` 管理，且与项目内 skill 重复 |
+
+插件安装后 `doctor` 里的 `registration:*` / `skill:*` 仍会报 missing，这是两套状态互不认，**不要因此重装**。
+
+## 安装授权（硬性规则）
+
+**本项目内任何安装、下载、升级行为，都必须先获得用户明确授权，逐次确认，不得默认同意。**
+
+包括但不限于：
+
+- `pnpm add` / `pnpm install <新包>` / `npm i -g` / `pnpm dlx`
+- 下载分析引擎（Ghidra、JDK、JADX、adb、Frida 等）或任何二进制
+- 升级 Node、pnpm、REA 版本，或修改 `package.json` 的依赖
+- 修改项目之外的全局配置（`~/.claude`、`~/.cc-switch`、`~/.codex`、`D:\.pnpm-store`）
+- 从网络取回任何可执行内容（`Invoke-WebRequest`、`curl`、`git clone`）
+
+正确做法：**先说明要装什么、多大、装到哪、有什么副作用，等用户回“可以”再执行。**
+只读操作（读文件、跑已装好的命令、查询版本）不需要授权。
+
 ## 目录约定
 
 | 目录 | 用途 | 是否入库 |
@@ -85,7 +113,7 @@ pnpm exec rea decompile "<目标文件>" --procedure <函数名> --json
 ## 不要做的事
 
 - 不要修改 `~/.claude/settings.json`、`~/.cc-switch/` 等与本项目无关的配置。
-- 不要在未获用户同意时下载或安装任何工具（Ghidra、JDK、JADX 等）。
+- 不要在未获授权时下载或安装任何东西，规则见上文「安装授权」。
 - 不要为了“让命令跑通”而临时全局安装包；先确认项目内是否已有依赖。
 - 不要提交 `node_modules/`、样本文件、反编译产物。
 
