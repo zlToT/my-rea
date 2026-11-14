@@ -210,7 +210,7 @@ Get-ChildItem $img -Recurse -Filter *.png | ForEach-Object {
 | Unity WebGL | `Build/UnityLoader.js`、`.wasm`、`.data.unityweb`、`UnityCache` |
 | 自研/其他 | `game.js` + `adapter.js`，大量 `wx.*` 调用 |
 
-本仓库案例「赵云与阿斗」是 **LayaAir 3.3.12**：
+本仓库案例「样本 A」是 **LayaAir 3.3.12**：
 
 - `game.js` 开头 `define("js/bundle.js", ...)`；
 - 14 个 `.ls` 场景、70+ `.lh` prefab；
@@ -325,3 +325,4 @@ notes/<project>/analysis.md 逆向报告
 - `AGENTS.md`：仓库规则与 skill 索引；
 - `notes/README.md`：notes 目录约定；
 - `notes/web-mobile/analysis.md`：Cocos 2.x 小游戏复刻案例，可对照写法。
+

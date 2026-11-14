@@ -1,8 +1,10 @@
-# 微信小游戏「赵云与阿斗」逆向记录
+# 微信小游戏「样本 A」逆向记录
+
+> 说明：为降低识别度，本文用「样本 A」代称目标，appid、游戏名与角色名均已脱敏/泛化。
 
 ## 1. 结论速览
 
-- 目标：微信小游戏「赵云与阿斗」，appid `<appid>`，本地缓存版本号 `48`。
+- 目标：微信小游戏「样本 A」，appid `<appid>`，本地缓存版本号 `48`。
 - 引擎：**LayaAir 3.3.12**，构建产物为微信小游戏 `game.js` + `.ls` 场景 + `.lh` prefab + `resources` 资源分包。
 - 样本：5 个 `wxapkg`，合计 12,848,785 字节；已复制到 `targets/wechat-minigame/<appid>/48/`。
 - 解包：5 个包全部解包成功，共 344 个文件；主包 96 个文件、3,092,753 字节；JSON、场景、prefab、PNG 均已抽样或全量校验。
@@ -25,17 +27,17 @@ targets\wechat-minigame\<appid>\48\
 
 ### 2.2 文件与校验
 
-| 文件 | 字节数 | SHA-256 |
-|---|---:|---|
+| 文件                                    |    字节数 | SHA-256                                                              |
+| --------------------------------------- | --------: | -------------------------------------------------------------------- |
 | `__WITHOUT_MULTI_PLUGINCODE__.wxapkg` | 3,096,187 | `a4d6d9ca913f4e78621dd6fdd2fddcaed08e331bf9d35a867851eb9e41e25b4d` |
-| `_resources_anim_.wxapkg` | 1,277,774 | `b24e2579f1ff4507f51dffdc48175fa969f2feac943ab92bac473105fe493d0b` |
-| `_resources_img_.wxapkg` | 4,269,202 | `efe87ba10e16448b4ded1dc75c6e8b1f150fdaf83018c203287e2a454b9da656` |
-| `_resources_music_.wxapkg` | 1,877,780 | `0766097ca0b90990d08c4174035926c769f1818d134de15d1fe38a1d8beab4b4` |
-| `_resources_sound_.wxapkg` | 2,327,842 | `fc0b77284d4ae2f462f7e36a45dc6c9e63ecbb83d353ab4fa24bb5083e9bb58f` |
+| `_resources_anim_.wxapkg`             | 1,277,774 | `b24e2579f1ff4507f51dffdc48175fa969f2feac943ab92bac473105fe493d0b` |
+| `_resources_img_.wxapkg`              | 4,269,202 | `efe87ba10e16448b4ded1dc75c6e8b1f150fdaf83018c203287e2a454b9da656` |
+| `_resources_music_.wxapkg`            | 1,877,780 | `0766097ca0b90990d08c4174035926c769f1818d134de15d1fe38a1d8beab4b4` |
+| `_resources_sound_.wxapkg`            | 2,327,842 | `fc0b77284d4ae2f462f7e36a45dc6c9e63ecbb83d353ab4fa24bb5083e9bb58f` |
 
 ### 2.3 为什么不在模拟器里
 
-- 雷电桌面上的「赵云与阿斗」只是快捷方式，intent 指向 `com.ld.wechat.minigame.<appid>/.MainActivity`，extras 含 `id=<appid>`、`game_name=赵云与阿斗`；直接 `am start` 报 `Activity class ... does not exist`。
+- 雷电桌面上的「样本 A」只是快捷方式，intent 指向 `com.ld.wechat.minigame.<appid>/.MainActivity`，extras 含 `id=<appid>`、`game_name=<已脱敏>`；直接 `am start` 报 `Activity class ... does not exist`。
 - 模拟器内 `pm list packages` 只有 68 个系统包，没有微信、也没有该小游戏包；全盘 `find` 无 `*.wxapkg`。
 - Windows 上实际运行的是：
 
@@ -58,13 +60,13 @@ BE 00 00 00 00 00 00 0D 5C 00 2F 31 11 ED
 
 按 14 字节解析：
 
-| 字段 | 值 | 含义 |
-|---|---|---|
-| magic | `0xBE` | wxapkg 标记 |
-| info1 | `0x00000000` | 本样本为 0 |
-| indexLen | `0x00000D5C` = 3,420 | 索引区长度 |
-| bodyLen | `0x002F3111` = 3,092,753 | 数据区长度 |
-| mark | `0xED` | 尾部标记 |
+| 字段     | 值                         | 含义        |
+| -------- | -------------------------- | ----------- |
+| magic    | `0xBE`                   | wxapkg 标记 |
+| info1    | `0x00000000`             | 本样本为 0  |
+| indexLen | `0x00000D5C` = 3,420     | 索引区长度  |
+| bodyLen  | `0x002F3111` = 3,092,753 | 数据区长度  |
+| mark     | `0xED`                   | 尾部标记    |
 
 ### 3.2 索引结构
 
@@ -115,13 +117,13 @@ python tools\unpack_wxapkg.py `
 
 ## 4. 解包结果与完整性验证
 
-| 包 | 文件数 | 解包后字节数 |
-|---|---:|---:|
-| 主包 `__WITHOUT_MULTI_PLUGINCODE__` | 96 | 3,092,753 |
-| `_resources_anim_` | 55 | 1,275,156 |
-| `_resources_img_` | 96 | 4,264,664 |
-| `_resources_music_` | 5 | 1,877,539 |
-| `_resources_sound_` | 92 | 2,323,467 |
+| 包                                    | 文件数 | 解包后字节数 |
+| ------------------------------------- | -----: | -----------: |
+| 主包 `__WITHOUT_MULTI_PLUGINCODE__` |     96 |    3,092,753 |
+| `_resources_anim_`                  |     55 |    1,275,156 |
+| `_resources_img_`                   |     96 |    4,264,664 |
+| `_resources_music_`                 |      5 |    1,877,539 |
+| `_resources_sound_`                 |     92 |    2,323,467 |
 
 已验证：
 
@@ -217,22 +219,23 @@ RankScene, SettingScene, ShopScene, TestWeaponScene, WeaponScene
 ```
 
 解包后的对应目录正好是 `_resources_anim_/resources/anim`、`_resources_img_/resources/img` 等，合并进主包 `resources/` 即可形成完整资源树。这是本地还原的关键一步。
+
 ## 6. 玩法与代码观察（初步）
 
 从 scene / prefab / bundle 字符串可见，这不是简单三消，而是**2D 合成 + 塔防/对战 + 武将技能 + 波次**的小游戏，包含主界面、战斗、商店、武器、排位、匹配、设置、GM 等场景。
 
 `game.js` 中可读到的技能示例（仅代码字符串观察，完整公式待运行/细读）：
 
-| 技能 | 字符串描述 |
-|---|---|
-| 望梅止渴 | 对方每合成一个武将，我方的馒头就多加 5 个 |
-| 割发代首 | 阿斗剩最后一滴血时，会脱下帽子躲藏 5 秒再回到原地 |
-| 身在曹营 | 对面的关羽放技能时，有 50% 概率跳过来放 |
-| 桃园结义 | 可合成刘关张武将，合成后长满桃树为阿斗回血 |
-| 青梅煮酒 | 场上有武将升至 3 级时，阿斗献酒，该武将攻速提升 50% |
-| 上将克星 | 获得 1 个马忠碎片 |
+| 技能     | 字符串描述                                          |
+| -------- | --------------------------------------------------- |
+| 望梅止渴 | 对方每合成一个武将，我方的馒头就多加 5 个           |
+| 割发代首 | 主公剩最后一滴血时，会脱下帽子躲藏 5 秒再回到原地   |
+| 身在曹营 | 对面的敌方武将放技能时，有 50% 概率跳过来放             |
+| 桃园结义 | 可合成特定武将组合，合成后长满桃树为主公回血          |
+| 青梅煮酒 | 场上有武将升至 3 级时，主公献酒，该武将攻速提升 50% |
+| 上将克星 | 获得 1 个某武将碎片                                   |
 
-GM 面板里还能看到调试项：加钱、AI 加钱、下波必出 boss、武将升一级、天数 +1、处死对手、出 boss、测试场景、直接开始、随机道具、清除武器数据、加体力、随机武器碎片、下一赛季、锦马超、专属碎片 +1、马忠碎片 +1 等。
+GM 面板里还能看到调试项：加钱、AI 加钱、下波必出 boss、武将升一级、天数 +1、处死对手、出 boss、测试场景、直接开始、随机道具、清除武器数据、加体力、随机武器碎片、下一赛季、某武将、专属碎片 +1、某武将碎片 +1 等。
 
 这些说明：
 
@@ -244,7 +247,7 @@ GM 面板里还能看到调试项：加钱、AI 加钱、下波必出 boss、武
 
 目标不是「双击打开」，而是做一个和 `out/web-mobile/game` 同类的本地 Web 运行壳：
 
-~~~text
+```text
 out/wechat-minigame/web/
   index.html
   wx-shim.js
@@ -255,30 +258,32 @@ out/wechat-minigame/web/
     prefab/
     resources/   (主包 + 4 个分包合并)
     shader/
-~~~
+```
 
 步骤：
+
 1. 复制主包到 `game/`，把 4 个分包的 `resources/` 合并进 `game/resources/`；
 2. 写 `wx-shim.js`，优先覆盖这些 API：
 
-| wx API | 浏览器实现 |
-|---|---|
-| `createCanvas` | 页面 canvas |
-| `createImage` | `new Image()` |
-| `createInnerAudioContext` | HTMLAudioElement 包装 |
-| `onTouch*` | canvas pointer/touch 事件 |
-| storage | `localStorage` |
-| `login` | 返回假 code |
-| `request` | fetch 或本地 mock |
-| `loadSubpackage` | 直接 resolve（资源已合并） |
-| `getSystemInfoSync` | 固定 720x1280 / devicePixelRatio |
-| `getLaunchOptionsSync` | `{scene: 1001, query: {}}` |
+| wx API                      | 浏览器实现                       |
+| --------------------------- | -------------------------------- |
+| `createCanvas`            | 页面 canvas                      |
+| `createImage`             | `new Image()`                  |
+| `createInnerAudioContext` | HTMLAudioElement 包装            |
+| `onTouch*`                | canvas pointer/touch 事件        |
+| storage                     | `localStorage`                 |
+| `login`                   | 返回假 code                      |
+| `request`                 | fetch 或本地 mock                |
+| `loadSubpackage`          | 直接 resolve（资源已合并）       |
+| `getSystemInfoSync`       | 固定 720x1280 / devicePixelRatio |
+| `getLaunchOptionsSync`    | `{scene: 1001, query: {}}`     |
 
 3. 用本地 HTTP 服务打开 `index.html`，先过 loading，再补缺失 API；
 4. 用浏览器 DevTools 看第一个异常，按调用栈补 shim；
 5. 需要联网的接口先用 mock JSON 顶住，不接真实服务端。
 
 卡点：
+
 - `game.js` 是压缩 bundle，类名/模块名混淆，不能 1:1 还原源码；
 - 分包加载路径、`fileconfig.json`、图集路径要按原结构摆放；
 - 登录/排行榜/商店/赛季依赖服务端，单机只能跑客户端可玩部分；
@@ -293,16 +298,16 @@ out/wechat-minigame/web/
 
 ## 9. 证据索引
 
-| 内容 | 路径 |
-|---|---|
-| 原始包 | `targets/wechat-minigame/<appid>/48/` |
-| 解包结果 | `out/wechat-minigame/unpacked/` |
-| 解包脚本 | `tools/unpack_wxapkg.py` |
-| 技能 | `skills/wechat-minigame-reversing/SKILL.md` |
-| 入口 | `out/wechat-minigame/unpacked/__WITHOUT_MULTI_PLUGINCODE__/game.js` |
-| 场景 | `.../scene/MainScene.ls`、`.../scene/BattleScene.ls` |
-| 配置 | `.../app-config.json` |
-| 数据 | `.../data/rank.json`、`.../data/weapon.json` |
+| 内容     | 路径                                                                  |
+| -------- | --------------------------------------------------------------------- |
+| 原始包   | `targets/wechat-minigame/<appid>/48/`                               |
+| 解包结果 | `out/wechat-minigame/unpacked/`                                     |
+| 解包脚本 | `tools/unpack_wxapkg.py`                                            |
+| 技能     | `skills/wechat-minigame-reversing/SKILL.md`                         |
+| 入口     | `out/wechat-minigame/unpacked/__WITHOUT_MULTI_PLUGINCODE__/game.js` |
+| 场景     | `.../scene/MainScene.ls`、`.../scene/BattleScene.ls`              |
+| 配置     | `.../app-config.json`                                               |
+| 数据     | `.../data/rank.json`、`.../data/weapon.json`                      |
 
 ## 10. 后续待办
 
@@ -311,4 +316,7 @@ out/wechat-minigame/web/
 - [ ] 判断单机可玩边界（战斗是否完全客户端结算）；
 - [ ] 如继续，补 mock 登录/排行榜/商店接口；
 - [ ] 输出最小可玩 Demo 或分析结论。
+
+
+
 

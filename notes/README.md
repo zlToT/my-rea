@@ -25,8 +25,9 @@ Cocos Creator 2.x 打包的 5×5 三消小游戏，复刻在 `out/web-mobile/gam
 
 ## wechat-minigame
 
-雷电模拟器 9 的微信小游戏「赵云与阿斗」，LayaAir 3.3.12；包在 Windows 的 WMPF 缓存，不在 Android 虚拟机。
+雷电模拟器 9 的微信小游戏「样本 A」，LayaAir 3.3.12；包在 Windows 的 WMPF 缓存，不在 Android 虚拟机。
 
 | 文件 | 内容 |
 |---|---|
 | [`wechat-minigame/analysis.md`](wechat-minigame/analysis.md) | 主报告：取包路径、wxapkg 格式与绝对 offset 坑、解包验证、引擎与 wx API、场景/分包结构、玩法观察、本地还原路线、证据索引 |
+
