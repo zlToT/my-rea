@@ -35,6 +35,33 @@ npm i -g @anthropic-ai/claude-code pnpm
 - **不要删除 `D:\.pnpm-store`**。D 盘所有 pnpm 项目的文件都硬链接在此，删除会导致全量重下。
 - `pnpm-workspace.yaml` 里的 `onlyBuiltDependencies` 是为了放行 `frida` 的安装脚本，不要移除。
 
+## 项目内 skills
+
+本仓库自带 skill，位于 `.agents/skills/`，**已随仓库提交，可直接读取，无需安装**。
+
+| skill | 路径 | 何时加载 |
+|---|---|---|
+| `reverse-engineer-anything` | `.agents/skills/reverse-engineer-anything/SKILL.md` | 任务涉及逆向、反编译、分析发布产物时 |
+
+使用规则：
+
+1. **开始逆向任务前先读对应 `SKILL.md`**，再决定调用哪些 `rea` 子命令。
+2. `SKILL.md` 末尾的 `references/` 是按需读的，不要一次性全读（合计 235 KB）。
+3. 该 skill 原本面向 MCP 工具名编写。**本项目使用 CLI**，遇到 MCP 工具名时按下面映射替换：
+
+| skill 里的 MCP 说法 | 本项目用 |
+|---|---|
+| 调用 REA 工具 | `pnpm exec rea <子命令> --json` |
+| `rea doctor` 检查连接 | `pnpm exec rea doctor --json` |
+| 等待 MCP 连接 / 重启客户端 | 不适用，直接看命令的 stderr |
+
+4. 升级 REA 后 skill 可能过期（`SKILL.md` frontmatter 里有 `metadata.version`）。需要重新同步时：
+
+```powershell
+robocopy "node_modules\.pnpm\rea-agents@<版本>\node_modules\rea-agents\skills\reverse-engineer-anything" `
+         ".agents\skills\reverse-engineer-anything" /MIR
+```
+
 ## 常用命令
 
 ```powershell
