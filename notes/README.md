@@ -50,3 +50,15 @@ Windows 原生 exe 的静态反编译路线（REA + Ghidra）。样本是单个 
 | 文件 | 内容 |
 |---|---|
 | [`rea-exe-ghidra.md`](rea-exe-ghidra.md) | 方法论：JDK 版本坑、冒烟三步、调用图/符号聚类导航、读伪代码的套路、结论可信度分级；附录：数据模型 / 查询执行 / 索引构建的拆解（去标识化） |
+
+## apk-quicksdk-h5
+
+Android 侧样本：QuickSDK H5 JS 壳 + 雷电渠道的 APK（8.7 MB，6 个 dex / 9,748 类）。看起来像游戏，实际**包内零游戏资源**。
+用来跑通「APK → 判定是壳 → 解配置拿远端入口 → 运行时缓存取证 → 还原远端 H5 资源」这条链路，终点判定为 Egret Engine 5.4.1，并还原出 383 文件的远端站点。
+
+| 文件 | 内容 |
+|---|---|
+| [`apk-quicksdk-h5/analysis.md`](apk-quicksdk-h5/analysis.md) | 主报告：判定链（7 步否定法）、壳分层、AES 配置解密、Chromium simple-cache v3 布局、引擎硬确认、资源构成、EUI 皮肤可得性、jadx/apktool 复核、可复现命令表、10 条坑 |
+
+> 样本与产物不入库（`targets/*`、`out/*` 已在 .gitignore 中）。报告中出现的服务端密钥、app_secret 等敏感项仅作技术记录，不外传。
+
