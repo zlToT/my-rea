@@ -23,11 +23,14 @@
 |---|---|---|
 | `targets/` | 待分析样本，一个目标一个子目录 | 否 |
 | `out/` | 反编译产物、evidence 导出 | 否 |
+| `src/` | 可复用脚本（`apk_*`、`webview_cache.py`、`url_tree.py` 等） | 是 |
 | `notes/` | 结论、环境快照、对比记录 | 是 |
 | `skills/` | 项目自建 skill（按目标类型） | 是 |
-| `tools/` | Ghidra 12.2、JDK 25、Python venv 等本地工具链；`tools/unpack_wxapkg.py`、`tools/ghidra-env.ps1` 例外，入库 | 否（脚本除外） |
+| `tools/` | Ghidra 12.2、JDK 25、Python venv 等本地工具链；`tools/ghidra-env.ps1` 例外 | 否 |
 
 分析产物一律写到 `out/<项目名>/`，不要污染 `targets/` 或仓库根目录。
+
+**脚本复用**：检查/解析类脚本先看 `src/` 有没有现成的（`src/README.md` 有索引）；可复用的直接改进 `src/` 里的脚本，一次性验证脚本才放 `out/<项目名>/scripts/`。
 
 ## 不要做的事
 

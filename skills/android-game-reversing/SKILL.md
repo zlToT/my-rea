@@ -26,7 +26,7 @@ metadata:
 2. **安装授权**：`jadx` / `apktool` / `Ghidra` / 任何下载都要先说明「装什么、多大、装到哪、什么副作用」，等用户回「可以」。能在项目内 `tools/` 装就不要全局装。
 3. **默认不提交仓库**：产物写 `out/<项目名>/`（`.gitignore` 覆盖），结论写 `notes/`。
 4. **去标识化**：报告里不出现具体游戏名、包名、域名、密钥、备案/ISBN/软著、公司名，全部占位（见第 9 节）。
-5. 产物目录固定：`out/<项目名>/`、脚本 `out/<项目名>/scripts/`、笔记 `notes/<项目名>/analysis.md`。
+5. 产物目录固定：`out/<项目名>/`、可复用脚本 `src/`（入库，先查 `src/README.md`）、笔记 `notes/<项目名>/analysis.md`。
 
 ## 1. 三十秒判形态：先看 so 和体积，再看代码
 
@@ -54,12 +54,12 @@ H5 壳的三条硬证据（凑两条即可定性）：
 | 目的 | 做法 |
 |---|---|
 | 列目录 / 解包 | `7z l <apk>`、`7z x <apk> -o<dir>`（经 `cmd /c` 调用，路径带空格时引号会被 PowerShell 包装器吃掉 → 先 `cd` 再相对路径） |
-| 读二进制 Manifest | 自写 AXML 解析（`scripts/axml.py`）：string pool 头是 5 个 u32（`<IIIII`），属性值常是资源引用，需配合 `resources.arsc` 或 apktool 才拿到真值 |
-| DEX 字符串 / 类清单 | 自写 `dex2.py` → `strings_all.txt`、`classes_all.txt`；类数应与 jadx 差 < 1% |
+| 读二进制 Manifest | 自写 AXML 解析（`src/apk_axml.py`）：string pool 头是 5 个 u32（`<IIIII`），属性值常是资源引用，需配合 `resources.arsc` 或 apktool 才拿到真值 |
+| DEX 字符串 / 类清单 | 自写 `src/apk_dex.py` → `strings_all.txt`、`classes_all.txt`；类数应与 jadx 差 < 1% |
 | 引擎关键字初筛 | grep `cocos\|laya\|egret\|unity\|godot\|phaser\|pixi\|dragonbones\|harmony`。**先过滤超长行**（okhttp 的 public-suffix 正则会让终端刷屏，也会让 grep 结果全是噪音） |
 | 资源清单 | `resources.arsc` 里的文件名、`res/` 下 png/xml 数量，判断壳 UI 占比 |
 
-关于 `res/` 下的 XML：几乎全是 AppCompat 模板 + 渠道 SDK 的登录/充值界面，**不代表游戏 UI**。想快速统计归属，批量把二进制 AXML 转成文本（自写 `dump_res_xml.py`，魔数 `\x03\x00\x08\x00` 判 AXML），再按文件名前缀分组数一遍，报告里给一张占比表即可。
+关于 `res/` 下的 XML：几乎全是 AppCompat 模板 + 渠道 SDK 的登录/充值界面，**不代表游戏 UI**。想快速统计归属，批量把二进制 AXML 转成文本（自写 `src/apk_res_dump.py`，魔数 `\x03\x00\x08\x00` 判 AXML），再按文件名前缀分组数一遍，报告里给一张占比表即可。
 
 ## 3. 装工具（项目内，需用户授权）
 
